@@ -46,11 +46,6 @@ def compress_file(file_path, file_name):
         print(f"An error occurred during compression: {e}")
     return None
 
-def remove_files(file_path, compressed_file_path):
-    if os.path.exists(file_path):
-        os.remove(file_path)
-    if os.path.exists(compressed_file_path):
-        os.remove(compressed_file_path)
 
 def provide_download(compressed_file_path, file_name):
     try:
