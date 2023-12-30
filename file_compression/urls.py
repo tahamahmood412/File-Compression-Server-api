@@ -19,6 +19,6 @@ from django.urls import path
 from file_compression import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('home/',views.home ),
-    path('', views.upload_file, name='upload_file'),
+    # path('', views.upload_file, name='upload_file'),
+    path('receive_file/', views.receive_file, name='receive_file'),
 ]
