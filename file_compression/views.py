@@ -5,6 +5,22 @@ from django.core.files.storage import FileSystemStorage
 from .forms import FileUploadForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from urllib.parse import quote
+
+
+def provide_download(compressed_file_path, file_name):
+    try:
+        if os.path.exists(compressed_file_path):
+            # Assuming MEDIA_URL is the base URL for your media files
+            download_url = f'/media/uploads/{quote(file_name)}.gz'
+            print(download_url)
+            return download_url
+        else:
+            print("Compressed file not found.")
+    except Exception as e:
+        print(f"An error occurred during download: {e}")
+    return None
+
 
 
 @csrf_exempt
@@ -24,36 +40,22 @@ def receive_file(request):
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
 
-        return JsonResponse({'message': 'File uploaded & save to server successfully'})
+        # Compress the uploaded file
+        compressed_file_path = compress_file(file_path, uploaded_file.name)
+
+        if compressed_file_path:
+            # Provide the download URL for the compressed file
+            download_url = provide_download(compressed_file_path, uploaded_file.name)
+            if download_url:
+                # Create a download link in HTML format
+                download_link = f'<a href="{download_url}" download="{uploaded_file.name}.gz">Download Compressed File</a>'
+                return JsonResponse({'download_link': download_link})
+            else:
+                return JsonResponse({'error': 'Failed to generate download link'})
+        else:
+            return JsonResponse({'error': 'Failed to compress file'})
     else:
         return JsonResponse({'error': 'Invalid request'})
-
-
-
-#<-------------------UPLOAD FILE BY WEBSITE--------------------->
-# def upload_file(request):
-#     if request.method == 'POST':
-#         form = FileUploadForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             uploaded_file = request.FILES['file']
-#             fs = FileSystemStorage(location='media/uploads/')
-#             saved_file = fs.save(uploaded_file.name, uploaded_file)
-#             file_path = fs.path(saved_file)
-            
-#             compressed_file_path = compress_file(file_path, uploaded_file.name)
-            
-#             if compressed_file_path:
-#                 response = provide_download(compressed_file_path, uploaded_file.name)
-#                 # remove_files(file_path, compressed_file_path)
-#                 if response:
-#                     return response
-#                 else:
-#                     return render(request, 'error.html')
-#             else:
-#                 return render(request, 'error.html')
-#     else:
-#         form = FileUploadForm()
-#     return render(request, 'upload.html', {'form': form})
 
 
 def compress_file(file_path, file_name):
@@ -73,16 +75,4 @@ def compress_file(file_path, file_name):
     return None
 
 
-def provide_download(compressed_file_path, file_name):
-    try:
-        if os.path.exists(compressed_file_path):
-            with open(compressed_file_path, 'rb') as compressed_file:
-                response = HttpResponse(compressed_file, content_type='application/x-gzip')
-                response['Content-Disposition'] = f'attachment; filename="{file_name}.gz"'
-                return response
-        else:
-            print("Compressed file not found.")
-    except Exception as e:
-        print(f"An error occurred during download: {e}")
-    return None
 

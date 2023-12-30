@@ -15,7 +15,14 @@ def send_file(file_path):
         try:
             response = requests.post(url, files=files)
             if response.status_code == 200:
-                print(response)
+                data = response.json()  # Parse the JSON response
+                download_link = data.get('download_link')
+                if download_link:
+                    print("Download link received:")
+                    print(download_link)
+                    # Use the download_link variable as needed
+                else:
+                    print("No download link found in the response")
                 print("File sent successfully!")
             else:
                 print(f"Failed to send file. Status code: {response.status_code}")
