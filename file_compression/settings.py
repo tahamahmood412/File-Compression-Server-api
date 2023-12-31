@@ -32,7 +32,7 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ["2d82-59-103-108-33.ngrok-free.app"]
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '2d82-59-103-108-33.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '2d82-59-103-108-33.ngrok-free.app','192.168.1.102']
 
 
 # settings.py
